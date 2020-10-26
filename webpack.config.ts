@@ -30,10 +30,12 @@ module.exports = {
   },
   output: {
     filename: 'bundle.js',
+    publicPath: '/',
     path: path.resolve(__dirname, 'build'),
   },
   devServer: {
     contentBase: path.join(__dirname, 'build'),
+    historyApiFallback: true,
   },
   devtool: 'source-map',
   plugins: [
