@@ -1,3 +1,4 @@
+import { Box, Button, Heading } from "grommet";
 import React, { Component } from "react";
 import { Activity, Choice, Task } from "../db/types";
 
@@ -38,18 +39,22 @@ class ActivityComponent extends Component<Props, State> {
 
     if (task) {
       return (
-        <>
-          <h2>{task.symbol}</h2>
-          <ul>
-            {task.choices.map<JSX.Element>((choice, index) => {
-              return <li key={index} onClick={checkAnswer.bind(this, choice)}>{choice.text}</li>;
-            })}
-          </ul>
-        </>
+        <Box>
+          <Heading textAlign="center">{task.symbol}</Heading>
+          {task.choices.map<JSX.Element>((choice, index) => {
+              return (
+                <Box key={index} margin="small">
+                  <Button onClick={checkAnswer.bind(this, choice)}
+                          primary size="medium"
+                          label={choice.text} />
+                </Box>
+              );
+          })}
+        </Box>
       )
     } else {
       return (
-        <h2>Well done!</h2>
+        <Heading textAlign="center">Well done!</Heading>
       )
     }
   }

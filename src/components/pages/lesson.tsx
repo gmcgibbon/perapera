@@ -15,11 +15,8 @@ function LessonPage(props: Props): JSX.Element {
   const {title, activity} = lesson;
   
   return (
-    <Card  height="medium" width="medium" background="light-1">
-      <CardHeader pad="medium">
-        <Heading>{title}</Heading>
-      </CardHeader>
-      <CardBody pad="medium">
+    <Card fill background="light-1">
+      <CardBody pad="large">
         <Activity activity={activity}/>
       </CardBody>
     </Card>

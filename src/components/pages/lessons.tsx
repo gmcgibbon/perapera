@@ -1,7 +1,7 @@
+import { Heading } from "grommet";
+import { Calendar, Icon } from "grommet-icons";
 import { Card } from "grommet/components/Card";
 import { CardBody } from "grommet/components/CardBody";
-import { CardHeader } from "grommet/components/CardHeader";
-import { Heading } from "grommet/components/Heading";
 import React  from "react";
 import { Link } from "react-router-dom";
 import { Lesson } from "../../db/types";
@@ -10,26 +10,24 @@ type Props = {
   lessons: Lesson[];
 };
 
+const icons : Record<string, Icon> = {
+  "days-of-the-week": Calendar,
+};
+
 function LessonsPage(props: Props): JSX.Element {
   const {lessons} = props;
 
   return (
-    <Card  height="medium" width="medium" background="light-1">
-      <CardHeader pad="medium">
-        <Heading textAlign="center">Lessons</Heading>
-      </CardHeader>
-      <CardBody pad="medium">
-        <ul>
-          {lessons.map<JSX.Element>(({id, title}) => {
+    <Card fill background="light-1">
+      <CardBody pad="large">
+        {lessons.map<JSX.Element>(({id, title}) => {
+            const Icon = icons[id];
             return (
-              <li>
-                <Link key={id} to={`/lessons/${id}`}>
-                  <h2>{title}</h2>
-                </Link>
-              </li>
+              <Link key={id} to={`/lessons/${id}`}>
+                <Heading level="2"><Icon size="medium" /> {title}</Heading>
+              </Link>  
             );
-          })}
-        </ul>
+        })}
       </CardBody>
     </Card>
   )
