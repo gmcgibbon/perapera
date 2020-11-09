@@ -1,4 +1,5 @@
-import React from "react";
+import { Card, CardBody } from "grommet";
+import React, {useEffect} from "react";
 import { Lesson } from "../../db/types";
 import Activity from "../activity";
 
@@ -9,12 +10,17 @@ type Props = {
 function LessonPage(props: Props): JSX.Element {
   const {lesson} = props;
   const {title, activity} = lesson;
+
+  useEffect(() => {
+    document.title = title;
+  })
   
   return (
-    <>
-      <h1>{title}</h1>
-      <Activity activity={activity}/>
-    </>
+    <Card fill background="light-1">
+      <CardBody pad="large">
+        <Activity activity={activity}/>
+      </CardBody>
+    </Card>
   );
 };
 
