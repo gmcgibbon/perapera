@@ -1,36 +1,52 @@
 import React, { ReactElement } from "react";
-import { Link, MemoryRouter } from "react-router-dom";
-import { create, ReactTestInstance } from "react-test-renderer";
+import { MemoryRouter } from "react-router-dom";
+import { act, create, ReactTestInstance } from "react-test-renderer";
 
-type RouterProps = {
+type RenderOptions = {
   location?: string;
+  act?: boolean;
 };
 
 const click = (element: ReactTestInstance) => {
   element.props.onClick();
 }
 
-const textOf = (...elements: ReactTestInstance[]): string => {
+const textOf = (...elements: (ReactTestInstance | string)[]): string => {
   return (
-    elements.map<string>(
+    elements.map(
       (element) => {
-        if (element.children.length && typeof element.children[0] == "string") {
-          return element.children.join();
+        if (typeof element == "string") {
+          return element;
         } else {
-          return textOf(...element.children as ReactTestInstance[]);
+          return textOf(...element.children);
         }
       }
-    ).join()
+    ).join("")
   );
 }
 
-const render = (element: ReactElement, routerProps: RouterProps = {}) => {
-  const {location} = routerProps;
-  return create(
-    <MemoryRouter initialEntries={[location || '/']}>
-      { element }
-    </MemoryRouter>
-  );
+function maybeAct<TReturn>(callback: () => TReturn, shouldAct?: boolean): TReturn {
+  let returnValue;
+
+  if (shouldAct) {
+    act(() => { returnValue = callback() });
+  } else {
+    returnValue = callback();
+  }
+
+  return returnValue;
+};
+
+const render = (element: ReactElement, renderOptions: RenderOptions = {}) => {
+  const {location, act} = renderOptions;
+
+  return maybeAct(() => {
+    return create(
+      <MemoryRouter initialEntries={[location || '/']}>
+        { element }
+      </MemoryRouter>
+    )
+  }, act);
 };
 
 export {click, textOf, render};

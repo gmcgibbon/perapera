@@ -7,12 +7,16 @@ import Activity from '../../activity';
 const fakeLesson = lessonFactory.create({});
 
 describe('LessonPage', () => {
+  it('updates page title', () => {
+    render(<LessonPage lesson={fakeLesson} />, { act: true });
+
+    expect(document.title).toBe(fakeLesson.title);
+  });
+
   it('renders activity', () => {
     const lessonPage = render(<LessonPage lesson={fakeLesson} />);
-    const title = lessonPage.root.findByType("h1");
     const activity = lessonPage.root.findByType(Activity);
 
-    expect(textOf(title)).toBe(fakeLesson.title);
     expect(activity.props["activity"]).toBe(fakeLesson.activity);
   });
 });

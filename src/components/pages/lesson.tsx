@@ -1,8 +1,5 @@
-import { Card } from "grommet/components/Card";
-import { CardBody } from "grommet/components/CardBody";
-import { CardHeader } from "grommet/components/CardHeader";
-import { Heading } from "grommet/components/Heading";
-import React from "react";
+import { Card, CardBody } from "grommet";
+import React, {useEffect} from "react";
 import { Lesson } from "../../db/types";
 import Activity from "../activity";
 
@@ -13,6 +10,10 @@ type Props = {
 function LessonPage(props: Props): JSX.Element {
   const {lesson} = props;
   const {title, activity} = lesson;
+
+  useEffect(() => {
+    document.title = title;
+  })
   
   return (
     <Card fill background="light-1">
