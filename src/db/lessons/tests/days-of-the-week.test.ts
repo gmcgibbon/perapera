@@ -16,17 +16,28 @@ describe('daysOfTheWeek', () => {
     describe('generator', () => {
       const {generator} = activity;
 
-      it('returns three tasks', () => {
+      it('returns 6 tasks', () => {
         const tasks = generator();
         
-        expect(tasks).toHaveLength(3);
+        expect(tasks).toHaveLength(6);
       });
 
       it('returns three identify symbol tasks', () => {
         const tasks = generator();
-        const identifySymbolTasks = tasks.filter((task): task is Task => task.type == TaskType.IdentifySymbol);
+        const identifySymbolTasks = tasks.filter(
+          (task): task is Task => task.type == TaskType.IdentifySymbol
+        );
 
         expect(identifySymbolTasks).toHaveLength(3);
+      });
+
+      it('returns three matching tasks', () => {
+        const tasks = generator();
+        const matchingTasks = tasks.filter(
+          (task): task is Task => task.type == TaskType.Matching
+        );
+
+        expect(matchingTasks).toHaveLength(3);
       });
 
       it('returns random tasks', () => {

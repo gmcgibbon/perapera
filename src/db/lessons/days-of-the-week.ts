@@ -1,5 +1,5 @@
-import {max, sample, times} from "lodash";
-import {Choice, IdentifySymbolTask, Lesson, Task, TaskType} from "../types";
+import {max, sample, shuffle, times} from "lodash";
+import {Choice, IdentifySymbolTask, Lesson, MatchingTask, Task, TaskType} from "../types";
 
 const englishDays: string[] = [
   "Monday",
@@ -40,11 +40,32 @@ function randomIdentifySymbolTask(): IdentifySymbolTask {
   return { symbol, choices, answer, type };
 };
 
+function randomMatchingTask(): MatchingTask {
+  
+  const choices = times(4, () => {
+    const typeIndex = sample(times(3));
+    const characterIndex = sample(times(5));
+    const keyGenerator = () => [englishDays, hiraganaDays, kanjiDays][typeIndex][characterIndex];
+    const valueGenerator = () => [
+      () => sample([hiraganaDays, kanjiDays]),
+      () => sample([englishDays, kanjiDays]),
+      () => sample([englishDays, hiraganaDays]),
+    ][typeIndex]()[characterIndex];
+    return [{ text: keyGenerator() }, { text: valueGenerator() }] as [Choice, Choice];
+  });
+  const type = TaskType.Matching;
+
+  return { choices, type }
+}
+
 const daysOfTheWeek: Lesson = {
   id: "days-of-the-week",
   title: "Days of the week",
   activity: {
-    generator: () => times(3).map<Task>(() => randomIdentifySymbolTask())
+    generator: () => shuffle([
+      ...times(3).map(randomIdentifySymbolTask),
+      ...times(3).map(randomMatchingTask),
+    ])
   },
 };
 
