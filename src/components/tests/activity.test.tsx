@@ -6,6 +6,7 @@ import Activity from '../activity';
 import { Button, Heading } from 'grommet';
 import { Checkmark, Close } from 'grommet-icons';
 import { ReactTestRenderer } from 'react-test-renderer';
+import { Task } from '../../db/types';
 
 const fakeTasks = [
   identifySymbolTaskFactory.create({
@@ -44,72 +45,94 @@ const fakeActivity = activityFactory.create({
   generator: () => fakeTasks
 });
 
-const symbolType = Heading;
-const choiceType = Button;
-const iconType = Heading;
+class TestPage {
+  constructor(private page: ReactTestRenderer) { }
+
+  get symbol() {
+    return this.page.root.findAllByType(Heading)[0];
+  }
+
+  get message() {
+    return this.page.root.findAllByType(Heading)[0];
+  }
+
+  get choices() {
+    return this.page.root.findAllByType(Button).filter((button) => button != this.next)
+  }
+
+  get next() {
+    return this.page.root.findAllByType(Button).find((button) => button.props["label"] == "Next");
+  }
+
+  get icon() {
+    return this.page.root.findAllByType(Checkmark).concat(this.page.root.findAllByType(Close))[0];
+  }
+
+  correctChoiceFor(task: Task) {
+    return this.choices.find((choiceElement) => textOf(choiceElement) == task.answer);
+  }
+
+  incorrectChoiceFor(task: Task) {
+    return this.choices.find((choiceElement) => textOf(choiceElement) != task.answer);
+  }
+}
 
 describe('Activity', () => {
   it('renders symbols', () => {
-    const activity = render(<Activity activity={fakeActivity} />);
+    const activity = new TestPage(render(<Activity activity={fakeActivity} />));
     fakeTasks.forEach((task) => {
-      const symbolEelment = activity.root.findAllByType(symbolType)[0];
-      expect(textOf(symbolEelment)).toBe(task.symbol);
-      
-      const choiceElements = activity.root.findAllByType(choiceType);
-      const correctChoiceElement = choiceElements.find((choiceElement) => textOf(choiceElement) == task.answer);
-      
-      click(correctChoiceElement);
+      expect(textOf(activity.symbol)).toBe(task.symbol);
+
+      click(activity.correctChoiceFor(task));
+      click(activity.next);
     });
   });
 
   it('renders choices', () => {
-    const activity = render(<Activity activity={fakeActivity} />);
+    const activity = new TestPage(render(<Activity activity={fakeActivity} />));
     fakeTasks.forEach((task) => {
-      const choiceElements = activity.root.findAllByType(choiceType);
-      const correctChoiceElement = choiceElements.find((choiceElement) => textOf(choiceElement) == task.answer);
-
       task.choices.forEach(({text}) => {
-        expect(choiceElements.some((choiceElement) => textOf(choiceElement) == text)).toBe(true);
+        expect(activity.choices.some((choiceElement) => textOf(choiceElement) == text)).toBe(true);
       });
       
-      click(correctChoiceElement);
+      click(activity.correctChoiceFor(task));
+      click(activity.next);
     });
   });
 
   it('renders success screen', () => {
-    const activity = render(<Activity activity={fakeActivity} />);
-    fakeTasks.forEach((task) => {
-      const choiceElements = activity.root.findAllByType(choiceType);
-      const choiceAnswerElement = choiceElements.find((choiceElement) => textOf(choiceElement) == task.answer);
-  
-      task.choices.forEach(({text}) => {
-        expect(choiceElements.some((choiceElement) => textOf(choiceElement) == text)).toBe(true);
-      });
-        
-      click(choiceAnswerElement);
+    const activity = new TestPage(render(<Activity activity={fakeActivity} />));
+    fakeTasks.forEach((task) => {  
+      click(activity.correctChoiceFor(task));
+      click(activity.next);
     });
+
+    expect(textOf(activity.message)).toBe("Well done!");
   });
 
-  it('renders icons', () => {
-    const activity = render(<Activity activity={fakeActivity} />);
+  it('renders incorrect icon and next button when answer is incorrect', () => {
+    const activity = new TestPage(render(<Activity activity={fakeActivity} />));
     const task = fakeTasks[0];
     
-    expect(iconsOnPage(activity)).toHaveLength(0);
-      
-    const choiceElements = activity.root.findAllByType(choiceType);
-    const correctChoiceElement = choiceElements.find((choiceElement) => textOf(choiceElement) == task.answer);
-    const incorrectChoiceElement = choiceElements.find((choiceElement) => correctChoiceElement != choiceElement);
+    expect(activity.icon).toBeUndefined();
+    expect(activity.next).toBeUndefined();
 
-    click(incorrectChoiceElement);
+    click(activity.incorrectChoiceFor(task));
 
-    expect(iconsOnPage(activity)[0].type).toBe(Close);
-
-    click(correctChoiceElement);
-
-    expect(iconsOnPage(activity)[0].type).toBe(Checkmark);
+    expect(activity.icon.type).toBe(Close);
+    expect(activity.next).toBeDefined();
   });
 
-  function iconsOnPage(page: ReactTestRenderer) {
-    return page.root.findAllByType(Checkmark).concat(page.root.findAllByType(Close));
-  }
+  it('renders incorrect icon and next button when answer is correct', () => {
+    const activity = new TestPage(render(<Activity activity={fakeActivity} />));
+    const task = fakeTasks[0];
+    
+    expect(activity.icon).toBeUndefined();
+    expect(activity.next).toBeUndefined();
+
+    click(activity.correctChoiceFor(task));
+
+    expect(activity.icon.type).toBe(Checkmark);
+    expect(activity.next).toBeDefined();
+  });
 });

@@ -1,4 +1,4 @@
-import { Box, Button, Heading } from "grommet";
+import { Box, Button, Footer, Grid, Heading } from "grommet";
 import { Checkmark, Close } from "grommet-icons";
 import React, { Component } from "react";
 import { Activity, Choice, Task } from "../db/types";
@@ -7,82 +7,134 @@ type Props = {
   activity: Activity;
 };
 
-enum Interaction {
-  Correct,
-  Incorrect,
-  Unanswered,
-}
-
 type State = {
   tasks: Task[];
-  index: number;
-  answer: Interaction;
+  taskIndex: number;
+  selectedChoice?: Choice;
 }
 
 class ActivityComponent extends Component<Props, State> {
-  readonly state = {
+  readonly state: State = {
     tasks: this.props.activity.generator(),
-    index: 0, 
-    answer: Interaction.Unanswered,
+    taskIndex: 0,
   };
 
   render() {
-    const {task, iconComponent, checkAnswer} = this;
-    const Icon = iconComponent.bind(this);
+    const {selectedChoice} = this.state;
+    const {task, selectChoice, nextTask, finishActivity} = this;
+    
+    const Icon = () => {
+      if (!selectedChoice) {
+        return <br />;
+      }
+      
+      if (this.isCorrect(selectedChoice)) {
+        return <Checkmark color="status-ok" />;
+      } else {
+        return <Close color="status-error" />;
+      }
+    }
+
+    const OptionList = () => {
+      return (
+        <Grid columns={['small', 'small']}
+              rows={new Array(Math.ceil(task.choices.length / 2)).fill('xxsmall')}
+              gap="small"
+              alignSelf="center"
+              margin="medium">
+          {task.choices.map<JSX.Element>((choice, index) => {
+            return (
+              <Box key={index}>
+                      <Button onClick={selectChoice.bind(this, choice)}
+                              primary
+                              color={this.buttonColor(choice)}
+                              disabled={!!selectedChoice}
+                              size="large"
+                              label={choice.text} />
+              </Box>
+            );
+          })}
+      </Grid>
+      )
+    }
+    const NextFooter = () => {
+      if (selectedChoice) {
+        return (
+          <Footer animation="slideUp" justify="end" margin="small">
+              <Icon />
+              <Button onClick={nextTask.bind(this)}
+                      secondary
+                      size="medium"
+                      label="Next" />
+          </Footer>
+        );
+      } else {
+        return null;
+      }
+    }
 
     if (task) {
       return (
         <Box>
           <Heading textAlign="center">{task.symbol}</Heading>
-          <Heading level="2" textAlign="center"><Icon /></Heading>
-          <Box>
-            {task.choices.map<JSX.Element>((choice, index) => {
-                return (
-                  <Box key={index} margin="small">
-                    <Button onClick={checkAnswer.bind(this, choice)}
-                            primary
-                            size="medium"
-                            label={choice.text} />
-                  </Box>
-                );
-            })}
-          </Box>
+          <OptionList />
+          <NextFooter />
         </Box>
       )
     } else {
       return (
-        <Heading textAlign="center">Well done!</Heading>
+        <Box>
+          <Heading textAlign="center">Well done!</Heading>
+          <Box alignSelf="center">
+            <Button onClick={finishActivity}
+                    secondary
+                    size="large"
+                    label="Finish" />
+          </Box>
+        </Box>
       )
     }
   }
 
   private get task() {
-    const  { index, tasks } = this.state;
-    return tasks[index];
+    const  { taskIndex, tasks } = this.state;
+    return tasks[taskIndex];
   }
 
-  private iconComponent(): JSX.Element {
-    const {answer} = this.state;
+  private buttonColor(choice?: Choice) {
+    if (this.state.selectedChoice) {
+      if (this.isCorrect(choice)) {
+        return "neutral-1"
+      }
 
-    switch (answer) {
-      case Interaction.Unanswered:
-        return <br />;
-      case Interaction.Correct:
-        return <Checkmark color="status-ok" />;
-      case Interaction.Incorrect:
-        return <Close color="status-error" />;
+      if (this.state.selectedChoice == choice) {
+        return "status-error";
+      }
+    } else {
+      return "brand"
     }
   }
 
-  private checkAnswer(choice: Choice) {
-    const index = this.state.index + 1;
+  private isCorrect(choice: Choice) {
+    return choice && choice.text == this.task.answer;
+  }
 
-    if (choice.text != this.task.answer) {
-      const tasks = this.state.tasks.concat(this.task);
-      this.setState({ index, tasks, answer: Interaction.Incorrect, });
-    } else {
+  private finishActivity() {
+    document.location.href = "/";
+  }
+
+  private nextTask() {
+    const taskIndex = this.state.taskIndex + 1;
+    this.setState({ taskIndex, selectedChoice: undefined });
+  }
+
+  private selectChoice(choice: Choice) {
+    if (this.isCorrect(choice)) {
       const tasks = this.state.tasks;
-      this.setState({ index, tasks, answer: Interaction.Correct, });
+      this.setState({ tasks, selectedChoice: choice });
+    } else {
+      const tasks = this.state.tasks.concat(this.task);
+      this.setState({ tasks, selectedChoice: choice });
     }
   }
 }
