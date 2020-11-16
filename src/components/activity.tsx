@@ -1,7 +1,7 @@
-import { Box, Button, Footer, Grid, Heading } from "grommet";
-import { Checkmark, Close } from "grommet-icons";
+import { Box, Button, Heading } from "grommet";
 import React, { Component } from "react";
-import { Activity, Choice, Task } from "../db/types";
+import { Activity, Choice, IdentifySymbolTask, Task, TaskType } from "../db/types";
+import IdentifySymbolTaskComponent from "../tasks/identity-symbol-task";
 
 type Props = {
   activity: Activity;
@@ -10,7 +10,6 @@ type Props = {
 type State = {
   tasks: Task[];
   taskIndex: number;
-  selectedChoice?: Choice;
 }
 
 class ActivityComponent extends Component<Props, State> {
@@ -20,67 +19,19 @@ class ActivityComponent extends Component<Props, State> {
   };
 
   render() {
-    const {selectedChoice} = this.state;
-    const {task, selectChoice, nextTask, finishActivity} = this;
-    
-    const Icon = () => {
-      if (!selectedChoice) {
-        return <br />;
-      }
-      
-      if (this.isCorrect(selectedChoice)) {
-        return <Checkmark color="status-ok" />;
-      } else {
-        return <Close color="status-error" />;
-      }
-    }
+    const {task, nextTask, finishActivity} = this;
 
-    const OptionList = () => {
-      return (
-        <Grid columns={['small', 'small']}
-              rows={new Array(Math.ceil(task.choices.length / 2)).fill('xxsmall')}
-              gap="small"
-              alignSelf="center"
-              margin="medium">
-          {task.choices.map<JSX.Element>((choice, index) => {
-            return (
-              <Box key={index}>
-                      <Button onClick={selectChoice.bind(this, choice)}
-                              primary
-                              color={this.buttonColor(choice)}
-                              disabled={!!selectedChoice}
-                              size="large"
-                              label={choice.text} />
-              </Box>
-            );
-          })}
-      </Grid>
-      )
-    }
-    const NextFooter = () => {
-      if (selectedChoice) {
-        return (
-          <Footer animation="slideUp" justify="end" margin="small">
-              <Icon />
-              <Button onClick={nextTask.bind(this)}
-                      secondary
-                      size="medium"
-                      label="Next" />
-          </Footer>
-        );
-      } else {
-        return null;
+    const Task = () => {
+      switch (this.task.type) {
+        case TaskType.IdentifySymbol:
+          return <IdentifySymbolTaskComponent task={task as IdentifySymbolTask} nextTask={nextTask.bind(this)} />;
+        default:
+          throw new Error(`Unsupported task "${this.task}"`)
       }
-    }
+    };
 
     if (task) {
-      return (
-        <Box>
-          <Heading textAlign="center">{task.symbol}</Heading>
-          <OptionList />
-          <NextFooter />
-        </Box>
-      )
+      return <Task />
     } else {
       return (
         <Box>
@@ -101,40 +52,19 @@ class ActivityComponent extends Component<Props, State> {
     return tasks[taskIndex];
   }
 
-  private buttonColor(choice?: Choice) {
-    if (this.state.selectedChoice) {
-      if (this.isCorrect(choice)) {
-        return "neutral-1"
-      }
-
-      if (this.state.selectedChoice == choice) {
-        return "status-error";
-      }
-    } else {
-      return "brand"
-    }
-  }
-
-  private isCorrect(choice: Choice) {
-    return choice && choice.text == this.task.answer;
-  }
-
   private finishActivity() {
     document.location.href = "/";
   }
 
-  private nextTask() {
-    const taskIndex = this.state.taskIndex + 1;
-    this.setState({ taskIndex, selectedChoice: undefined });
-  }
-
-  private selectChoice(choice: Choice) {
-    if (this.isCorrect(choice)) {
+  private nextTask(correct: boolean) {
+    if (correct) {
       const tasks = this.state.tasks;
-      this.setState({ tasks, selectedChoice: choice });
+      const taskIndex = this.state.taskIndex + 1;
+      this.setState({ tasks, taskIndex, });
     } else {
       const tasks = this.state.tasks.concat(this.task);
-      this.setState({ tasks, selectedChoice: choice });
+      const taskIndex = this.state.taskIndex + 1;
+      this.setState({ tasks, taskIndex, });
     }
   }
 }
