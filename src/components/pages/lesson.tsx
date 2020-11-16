@@ -17,7 +17,8 @@ function LessonPage(props: Props): JSX.Element {
   
   return (
     <Card fill background="light-1">
-      <CardBody pad="large">
+      <CardBody pad="large"
+                overflow="scroll">
         <Activity activity={activity}/>
       </CardBody>
     </Card>
