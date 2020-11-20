@@ -1,7 +1,7 @@
 import { Box, Button, Heading } from "grommet";
 import React, { Component } from "react";
-import { Activity, Choice, IdentifySymbolTask, Task, TaskType } from "../db/types";
-import IdentifySymbolTaskComponent from "../tasks/identity-symbol-task";
+import { Activity, IdentifySymbolTask, Task, TaskType } from "../db/types";
+import IdentifySymbolTaskComponent from "./tasks/identity-symbol-task";
 
 type Props = {
   activity: Activity;

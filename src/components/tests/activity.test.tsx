@@ -1,12 +1,11 @@
 import React from 'react';
-import { render } from '../../tests/react-helpers';
+import { click, render } from '../../tests/react-helpers';
 import { activityFactory, identifySymbolTaskFactory } from '../../db/tests/factories';
-import { click, textOf } from '../../tests/react-helpers';
+import { textOf } from '../../tests/react-helpers';
 import Activity from '../activity';
 import { Button, Heading } from 'grommet';
-import { Checkmark, Close } from 'grommet-icons';
 import { ReactTestRenderer } from 'react-test-renderer';
-import { Task } from '../../db/types';
+import IdentifySymbolTaskComponent from '../tasks/identity-symbol-task';
 
 const fakeTasks = [
   identifySymbolTaskFactory.create({
@@ -48,91 +47,55 @@ const fakeActivity = activityFactory.create({
 class TestPage {
   constructor(private page: ReactTestRenderer) { }
 
-  get symbol() {
-    return this.page.root.findAllByType(Heading)[0];
+  get task() {
+    return this.page.root.findByType(IdentifySymbolTaskComponent);
   }
 
   get message() {
-    return this.page.root.findAllByType(Heading)[0];
+    return this.page.root.findByType(Heading);
   }
 
-  get choices() {
-    return this.page.root.findAllByType(Button).filter((button) => button != this.next)
-  }
-
-  get next() {
-    return this.page.root.findAllByType(Button).find((button) => button.props["label"] == "Next");
-  }
-
-  get icon() {
-    return this.page.root.findAllByType(Checkmark).concat(this.page.root.findAllByType(Close))[0];
-  }
-
-  correctChoiceFor(task: Task) {
-    return this.choices.find((choiceElement) => textOf(choiceElement) == task.answer);
-  }
-
-  incorrectChoiceFor(task: Task) {
-    return this.choices.find((choiceElement) => textOf(choiceElement) != task.answer);
+  get finish() {
+    return this.page.root.findByType(Button);
   }
 }
 
 describe('Activity', () => {
-  it('renders symbols', () => {
+  it('renders task', () => {
     const activity = new TestPage(render(<Activity activity={fakeActivity} />));
-    fakeTasks.forEach((task) => {
-      expect(textOf(activity.symbol)).toBe(task.symbol);
-
-      click(activity.correctChoiceFor(task));
-      click(activity.next);
-    });
+    
+    expect(activity.task).toBeDefined();
   });
 
-  it('renders choices', () => {
+  it('renders each task', () => {
     const activity = new TestPage(render(<Activity activity={fakeActivity} />));
-    fakeTasks.forEach((task) => {
-      task.choices.forEach(({text}) => {
-        expect(activity.choices.some((choiceElement) => textOf(choiceElement) == text)).toBe(true);
-      });
-      
-      click(activity.correctChoiceFor(task));
-      click(activity.next);
+    
+    fakeTasks.forEach((_task) => {  
+      expect(activity.task).toBeDefined();
+
+      activity.task.props["nextTask"](true);
     });
   });
 
   it('renders success screen', () => {
     const activity = new TestPage(render(<Activity activity={fakeActivity} />));
-    fakeTasks.forEach((task) => {  
-      click(activity.correctChoiceFor(task));
-      click(activity.next);
+    
+    fakeTasks.forEach((_task) => {  
+      activity.task.props["nextTask"](true);
     });
 
     expect(textOf(activity.message)).toBe("Well done!");
+    expect(activity.finish).toBeDefined();
   });
 
-  it('renders incorrect icon and next button when answer is incorrect', () => {
+  it('ends activity on finish button click', () => {
     const activity = new TestPage(render(<Activity activity={fakeActivity} />));
-    const task = fakeTasks[0];
     
-    expect(activity.icon).toBeUndefined();
-    expect(activity.next).toBeUndefined();
+    fakeTasks.forEach((_task) => {  
+      activity.task.props["nextTask"](true);
+    });
 
-    click(activity.incorrectChoiceFor(task));
-
-    expect(activity.icon.type).toBe(Close);
-    expect(activity.next).toBeDefined();
-  });
-
-  it('renders incorrect icon and next button when answer is correct', () => {
-    const activity = new TestPage(render(<Activity activity={fakeActivity} />));
-    const task = fakeTasks[0];
-    
-    expect(activity.icon).toBeUndefined();
-    expect(activity.next).toBeUndefined();
-
-    click(activity.correctChoiceFor(task));
-
-    expect(activity.icon.type).toBe(Checkmark);
-    expect(activity.next).toBeDefined();
+    click(activity.finish);
+    expect(document.location.href).toBe('http://localhost/');
   });
 });
