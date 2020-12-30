@@ -20,7 +20,8 @@ function LessonsPage(props: Props): JSX.Element {
 
   return (
     <Card fill background="light-1">
-      <CardBody pad="large">
+      <CardBody pad="large"
+                overflow="scroll">
         {lessons.map<JSX.Element>(({id, title}) => {
             const Icon = icons[id] || New;
             return (

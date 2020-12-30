@@ -14,6 +14,7 @@ export type Choice = {
 
 export enum TaskType {
   IdentifySymbol,
+  Matching,
 }
 
 export type IdentifySymbolTask = {
@@ -23,4 +24,11 @@ export type IdentifySymbolTask = {
   answer: string;
 };
 
-export type Task = IdentifySymbolTask;
+export type MatchingTask = {
+  type: TaskType.Matching;
+  answers: Map<string, string>;
+  choices: Map<Choice, Choice>;
+
+};
+
+export type Task = IdentifySymbolTask | MatchingTask;

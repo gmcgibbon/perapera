@@ -1,5 +1,5 @@
 import { times } from "lodash";
-import { Activity, IdentifySymbolTask, Lesson, TaskType } from "../types";
+import { Activity, IdentifySymbolTask, Lesson, MatchingTask, TaskType } from "../types";
 
 function createCounter(count = 0): () => number {
   return () => count += 1
@@ -30,9 +30,30 @@ const identifySymbolTaskFactory = factory<IdentifySymbolTask>(() => ({
   type: TaskType.IdentifySymbol,
 }));
 
+const matchingTaskFactory = factory<MatchingTask>(() => ({
+  answers: new Map([
+    ['Hand', '手'],
+    ['Eye', '目'],
+    ['Ear', '耳'],
+    ['Mouth', '口'],
+    ['Nose', '鼻'],
+  ]),
+  choices: new Map([
+    [{text: 'Mouth'}, {text: '鼻'}],
+    [{text: 'Eye'}, {text: '耳'}],
+    [{text: 'Hand'}, {text: '口'}],
+    [{text: 'Nose'}, {text: '目'}],
+    [{text: 'Ear'}, {text: '手'}],
+  ]),
+  type: TaskType.Matching,
+}));
+
 const activityFactory = factory<Activity>(() => ({
   generator: () => {
-    return [identifySymbolTaskFactory.create()]
+    return [
+      identifySymbolTaskFactory.create(),
+      matchingTaskFactory.create(),
+    ]
   },
 }));
 
@@ -42,4 +63,9 @@ const lessonFactory = factory<Lesson>((id) => ({
   activity: activityFactory.create(),
 }));
 
-export { identifySymbolTaskFactory, activityFactory, lessonFactory };
+export {
+  identifySymbolTaskFactory,
+  matchingTaskFactory,
+  activityFactory,
+  lessonFactory,
+};
