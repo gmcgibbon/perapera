@@ -1,4 +1,4 @@
-import {max, sample, shuffle, times} from "lodash";
+import {max, sample, shuffle, times, zip} from "lodash";
 import {Choice, IdentifySymbolTask, Lesson, MatchingTask, Task, TaskType} from "../types";
 
 const englishDays: string[] = [
@@ -31,6 +31,18 @@ const kanjiDays: string[] = [
   "日曜日",
 ];
 
+const randomDayIndexer = () => {
+  const newIndices = () => shuffle(times(englishDays.length));
+  let indices = newIndices();
+  
+  return () => {
+    if (indices.length == 0) {
+      indices = newIndices();
+    }
+    return indices.pop();
+  }
+}
+
 function randomIdentifySymbolTask(): IdentifySymbolTask {
   const symbol = sample<string>([...hiraganaDays, ...kanjiDays]);
   const choices = englishDays.map<Choice>((day) => ({ text: day }));
@@ -41,21 +53,20 @@ function randomIdentifySymbolTask(): IdentifySymbolTask {
 };
 
 function randomMatchingTask(): MatchingTask {
-  
-  const choices = times(4, () => {
-    const typeIndex = sample(times(3));
-    const characterIndex = sample(times(5));
-    const keyGenerator = () => [englishDays, hiraganaDays, kanjiDays][typeIndex][characterIndex];
-    const valueGenerator = () => [
-      () => sample([hiraganaDays, kanjiDays]),
-      () => sample([englishDays, kanjiDays]),
-      () => sample([englishDays, hiraganaDays]),
-    ][typeIndex]()[characterIndex];
-    return [{ text: keyGenerator() }, { text: valueGenerator() }] as [Choice, Choice];
-  });
+  const dayIndexer = randomDayIndexer();
+  const answers = new Map(times(5, () => {
+    const randomDayIndex = dayIndexer();
+    const key = englishDays[randomDayIndex];
+    const value = sample([hiraganaDays, kanjiDays])[randomDayIndex];
+    return [key, value];
+  }));
+  const choices = new Map(zip(
+    shuffle(Array.from(answers.keys()).map((text) => ({ text } as Choice))),
+    shuffle(Array.from(answers.values()).map((text) => ({ text } as Choice))),
+  ));
   const type = TaskType.Matching;
 
-  return { choices, type }
+  return { answers, choices, type };
 }
 
 const daysOfTheWeek: Lesson = {

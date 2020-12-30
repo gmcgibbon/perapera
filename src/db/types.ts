@@ -26,7 +26,9 @@ export type IdentifySymbolTask = {
 
 export type MatchingTask = {
   type: TaskType.Matching;
-  choices: [Choice, Choice][];
+  answers: Map<string, string>;
+  choices: Map<Choice, Choice>;
+
 };
 
 export type Task = IdentifySymbolTask | MatchingTask;

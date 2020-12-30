@@ -2,23 +2,13 @@ import React from 'react';
 import { render } from '../../../tests/react-helpers';
 import { identifySymbolTaskFactory } from '../../../db/tests/factories';
 import { click, textOf } from '../../../tests/react-helpers';
-import Activity from '../../activity';
 import { Button, Heading } from 'grommet';
 import { Checkmark, Close } from 'grommet-icons';
 import { ReactTestRenderer } from 'react-test-renderer';
 import { IdentifySymbolTask } from '../../../db/types';
 import IdentifySymbolTaskComponent from '../identity-symbol-task';
 
-const fakeTask = identifySymbolTaskFactory.create({
-  symbol: '川',
-  answer: 'River',
-  choices: [
-    { text: 'River' },
-    { text: 'Ocean' },
-    { text: 'Pond' },
-    { text: 'Water' },
-  ]
-});
+const fakeTask = identifySymbolTaskFactory.create();
 
 const nextTask = jest.fn();
 

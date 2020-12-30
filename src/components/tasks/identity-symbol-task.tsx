@@ -1,7 +1,7 @@
 import { Box, Button, Footer, Grid, Heading } from "grommet";
 import { Checkmark, Close } from "grommet-icons";
 import React, { Component } from "react";
-import { Choice, IdentifySymbolTask } from "../db/types";
+import { Choice, IdentifySymbolTask } from "../../db/types";
 
 type Props = {
   nextTask: (correct: boolean) => void;
