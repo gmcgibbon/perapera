@@ -25,6 +25,10 @@ const textOf = (...elements: (ReactTestInstance | string)[]): string => {
   );
 }
 
+const fillIn = (element: ReactTestInstance, text: string) => {
+  element.props.onChange({ target: { value: text } });
+}
+
 function maybeAct<TReturn>(callback: () => TReturn, shouldAct?: boolean): TReturn {
   let returnValue;
 
@@ -49,4 +53,4 @@ const render = (element: ReactElement, renderOptions: RenderOptions = {}) => {
   }, act);
 };
 
-export {click, textOf, render};
+export {click, textOf, fillIn, render};

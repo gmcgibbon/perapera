@@ -1,5 +1,5 @@
 import { times } from "lodash";
-import { Activity, IdentifySymbolTask, Lesson, MatchingTask, TaskType } from "../types";
+import { Activity, IdentifySymbolTask, Lesson, MatchingTask, TaskType, TranslateTask } from "../types";
 
 function createCounter(count = 0): () => number {
   return () => count += 1
@@ -48,6 +48,17 @@ const matchingTaskFactory = factory<MatchingTask>(() => ({
   type: TaskType.Matching,
 }));
 
+const translateTaskFactory = factory<TranslateTask>(() => ({
+  answers: [
+    'にほんにいったことがありますか。',
+    '日本に行ったことがありますか。',
+    'にほんに行ったことがありますか。',
+    '日本にいったことがありますか。',
+  ],
+  text: 'Have you ever been to Japan?',
+  type: TaskType.Translate,
+}));
+
 const activityFactory = factory<Activity>(() => ({
   generator: () => {
     return [
@@ -66,6 +77,7 @@ const lessonFactory = factory<Lesson>((id) => ({
 export {
   identifySymbolTaskFactory,
   matchingTaskFactory,
+  translateTaskFactory,
   activityFactory,
   lessonFactory,
 };

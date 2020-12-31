@@ -1,8 +1,9 @@
 import { Box, Button, Heading } from "grommet";
 import React, { Component } from "react";
-import { Activity, IdentifySymbolTask, MatchingTask, Task, TaskType } from "../db/types";
+import { Activity, IdentifySymbolTask, MatchingTask, Task, TaskType, TranslateTask } from "../db/types";
 import IdentifySymbolTaskComponent from "./tasks/identity-symbol-task";
 import MatchingTaskComponent from "./tasks/matching-task";
+import TranslateTaskComponent from "./tasks/translate-task";
 
 type Props = {
   activity: Activity;
@@ -28,6 +29,8 @@ class ActivityComponent extends Component<Props, State> {
           return <IdentifySymbolTaskComponent task={task as IdentifySymbolTask} nextTask={nextTask.bind(this)} />;
         case TaskType.Matching:
           return <MatchingTaskComponent task={task as MatchingTask} nextTask={nextTask.bind(this)} />;
+        case TaskType.Translate:
+          return <TranslateTaskComponent task={task as TranslateTask} nextTask={nextTask.bind(this)} />;
         default:
           throw new Error(`Unsupported task "${this.task}"`)
       }

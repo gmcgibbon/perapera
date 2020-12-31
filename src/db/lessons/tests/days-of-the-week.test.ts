@@ -16,10 +16,10 @@ describe('daysOfTheWeek', () => {
     describe('generator', () => {
       const {generator} = activity;
 
-      it('returns 6 tasks', () => {
+      it('returns 9 tasks', () => {
         const tasks = generator();
         
-        expect(tasks).toHaveLength(6);
+        expect(tasks).toHaveLength(9);
       });
 
       it('returns three identify symbol tasks', () => {
@@ -38,6 +38,15 @@ describe('daysOfTheWeek', () => {
         );
 
         expect(matchingTasks).toHaveLength(3);
+      });
+
+      it('returns three translate tasks', () => {
+        const tasks = generator();
+        const translateTasks = tasks.filter(
+          (task): task is Task => task.type == TaskType.Translate
+        );
+
+        expect(translateTasks).toHaveLength(3);
       });
 
       it('returns random tasks', () => {
