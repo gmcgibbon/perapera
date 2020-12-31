@@ -12,11 +12,13 @@ type Props = {
 type State = {
   tasks: Task[];
   taskIndex: number;
+  taskCompletions: boolean[];
 }
 
 class ActivityComponent extends Component<Props, State> {
   readonly state: State = {
     tasks: this.props.activity.generator(),
+    taskCompletions: [],
     taskIndex: 0,
   };
 
@@ -36,13 +38,22 @@ class ActivityComponent extends Component<Props, State> {
       }
     };
 
-    if (task) {
-      return <Task />
-    } else {
+    const EndScreen = () => {
+      const {taskCompletions} = this.state;
+      const correctCount = taskCompletions.filter((bool) => bool).length;
+      const totalCount = taskCompletions.length;
+      const score = ((correctCount / totalCount) * 100);
+      const message = this.messageFor(score);
+
       return (
         <Box>
-          <Heading textAlign="center">Well done!</Heading>
-          <Box alignSelf="center">
+          <Heading textAlign="center">{score.toFixed(0)}%</Heading>
+          <Heading textAlign="center"
+                   level="2">
+              {message}
+          </Heading>
+          <Box alignSelf="center"
+               margin="medium">
             <Button onClick={finishActivity}
                     secondary
                     size="large"
@@ -50,6 +61,12 @@ class ActivityComponent extends Component<Props, State> {
           </Box>
         </Box>
       )
+    }
+
+    if (task) {
+      return <Task />
+    } else {
+      return <EndScreen />
     }
   }
 
@@ -66,11 +83,23 @@ class ActivityComponent extends Component<Props, State> {
     if (correct) {
       const tasks = this.state.tasks;
       const taskIndex = this.state.taskIndex + 1;
-      this.setState({ tasks, taskIndex, });
+      const taskCompletions = this.state.taskCompletions.concat([true]);
+      this.setState({ tasks, taskIndex, taskCompletions });
     } else {
       const tasks = this.state.tasks.concat(this.task);
       const taskIndex = this.state.taskIndex + 1;
-      this.setState({ tasks, taskIndex, });
+      const taskCompletions = this.state.taskCompletions.concat([false]);
+      this.setState({ tasks, taskIndex, taskCompletions });
+    }
+  }
+
+  private messageFor(score: number) { 
+    if (score >= 90) {
+      return "Well done!";
+    } else if (score >= 70) {
+      return "Good work!";
+    } else {
+      return "Keep trying!";
     }
   }
 }

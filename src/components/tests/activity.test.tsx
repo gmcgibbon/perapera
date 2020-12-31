@@ -6,39 +6,9 @@ import Activity from '../activity';
 import { Button, Heading } from 'grommet';
 import { ReactTestRenderer } from 'react-test-renderer';
 import IdentifySymbolTaskComponent from '../tasks/identity-symbol-task';
+import { times } from 'lodash';
 
-const fakeTasks = [
-  identifySymbolTaskFactory.create({
-    symbol: '川',
-    answer: 'River',
-    choices: [
-      { text: 'River' },
-      { text: 'Ocean' },
-      { text: 'Pond' },
-      { text: 'Water' },
-    ]
-  }),
-  identifySymbolTaskFactory.create({
-    symbol: '山',
-    answer: 'Mountain',
-    choices: [
-      { text: 'Mountain' },
-      { text: 'Hill' },
-      { text: 'Factory' },
-      { text: 'City' },
-    ]
-  }),
-  identifySymbolTaskFactory.create({
-    symbol: '日',
-    answer: 'Sun',
-    choices: [
-      { text: 'Sun' },
-      { text: 'Eye' },
-      { text: 'White' },
-      { text: 'Mouth' },
-    ]
-  }),
-];
+const fakeTasks = identifySymbolTaskFactory.createList(9);
 
 const fakeActivity = activityFactory.create({
   generator: () => fakeTasks
@@ -51,8 +21,12 @@ class TestPage {
     return this.page.root.findByType(IdentifySymbolTaskComponent);
   }
 
+  get score() {
+    return this.page.root.findAllByType(Heading)[0];
+  }
+
   get message() {
-    return this.page.root.findByType(Heading);
+    return this.page.root.findAllByType(Heading)[1];
   }
 
   get finish() {
@@ -77,14 +51,47 @@ describe('Activity', () => {
     });
   });
 
-  it('renders success screen', () => {
+  it('renders end screen with 80-100% correct', () => {
     const activity = new TestPage(render(<Activity activity={fakeActivity} />));
     
     fakeTasks.forEach((_task) => {  
       activity.task.props["nextTask"](true);
     });
 
+    expect(textOf(activity.score)).toBe("100%");
     expect(textOf(activity.message)).toBe("Well done!");
+    expect(activity.finish).toBeDefined();
+  });
+
+  it('renders end screen with 70-89% correct', () => {
+    const activity = new TestPage(render(<Activity activity={fakeActivity} />));
+    
+    times(Math.ceil(fakeTasks.length * 0.20), () => {
+      activity.task.props["nextTask"](false);
+    });
+
+    fakeTasks.forEach((_task) => {  
+      activity.task.props["nextTask"](true);
+    });
+
+    expect(textOf(activity.score)).toBe("82%");
+    expect(textOf(activity.message)).toBe("Good work!");
+    expect(activity.finish).toBeDefined();
+  });
+
+  it('renders end screen with <70% correct', () => {
+    const activity = new TestPage(render(<Activity activity={fakeActivity} />));
+
+    times(Math.ceil(fakeTasks.length * 0.50), () => {
+      activity.task.props["nextTask"](false);
+    });
+    
+    fakeTasks.forEach((_task) => {  
+      activity.task.props["nextTask"](true);
+    });
+
+    expect(textOf(activity.score)).toBe("64%");
+    expect(textOf(activity.message)).toBe("Keep trying!");
     expect(activity.finish).toBeDefined();
   });
 
