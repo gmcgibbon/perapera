@@ -27,6 +27,10 @@ class TestPage {
     return this.page.root.findAllByType(Button).find((button) => button.props["label"] == "Go");
   }
 
+  get correction() {
+    return this.page.root.findAllByType(Heading)[1];
+  }
+
   get next() {
     return this.page.root.findAllByType(Button).find((button) => button.props["label"] == "Next");
   }
@@ -47,6 +51,22 @@ describe('TranslateTaskComponent', () => {
     const taskPage = new TestPage(render(<TranslateTaskComponent nextTask={nextTask}  task={fakeTask} />));
 
     expect(textOf(taskPage.textArea)).toBe('');
+  });
+
+  it('does not render correction', () => {
+    const taskPage = new TestPage(render(<TranslateTaskComponent nextTask={nextTask}  task={fakeTask} />));
+
+    expect(taskPage.correction).toBeUndefined();
+  });
+
+  it('renders correction when incorrect', () => {
+    const taskPage = new TestPage(render(<TranslateTaskComponent nextTask={nextTask}  task={fakeTask} />));
+    const answer = 'incorrect';
+
+    fillIn(taskPage.textArea, answer);
+    click(taskPage.go);
+
+    expect(textOf(taskPage.correction)).toBe(fakeTask.answers[0]);
   });
 
   it('calls nextTask when correct', () => {
@@ -73,7 +93,7 @@ describe('TranslateTaskComponent', () => {
 
   it('allows answer with extra spaces', () => {
     const taskPage = new TestPage(render(<TranslateTaskComponent nextTask={nextTask}  task={fakeTask} />));
-    const answer = sample(fakeTask.answers).replace(/(\w)/, ' $1　');
+    const answer = sample(fakeTask.answers).replace(/(\S)/g, ' $1　');
 
     fillIn(taskPage.textArea, answer);
     click(taskPage.go);

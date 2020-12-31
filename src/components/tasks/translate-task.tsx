@@ -103,7 +103,7 @@ class TranslateTaskComponent extends Component<Props, State> {
   }
 
   private finishTranslation(translation: string) {
-    translation = translation.replace(/\s+/, '')
+    translation = translation.replace(/\s+/g, '')
 
     if (!translation.endsWith('。')) {
       translation = `${translation}。`;
