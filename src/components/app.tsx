@@ -3,7 +3,6 @@ import {
   Switch,
   Route,
   Redirect,
-  BrowserRouter,
 } from "react-router-dom";
 import LessonPage from "./pages/lesson";
 import LessonsPage from "./pages/lessons";

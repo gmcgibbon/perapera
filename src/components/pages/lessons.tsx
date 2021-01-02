@@ -1,5 +1,5 @@
 import { Anchor, Card, CardBody, Heading } from "grommet";
-import { Calendar, New, Icon } from "grommet-icons";
+import { Calendar, New, Icon, Brush } from "grommet-icons";
 import React, { useEffect }  from "react";
 import { Lesson } from "../../db/types";
 
@@ -9,6 +9,7 @@ type Props = {
 
 const icons : Record<string, Icon> = {
   "days-of-the-week": Calendar,
+  "kanji": Brush,
 };
 
 function LessonsPage(props: Props): JSX.Element {

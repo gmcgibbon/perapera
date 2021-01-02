@@ -1,5 +1,6 @@
 import { filter, find as lodashFind } from "lodash";
 import daysOfTheWeek from "./lessons/days-of-the-week";
+import kanji from "./lessons/kanji";
 
 type Resource = {
   [key: string]: any;
@@ -21,6 +22,7 @@ function db<TResource extends Resource>(collection: TResource[]) {
 
 const lessonDb = db([
   daysOfTheWeek,
+  kanji,
 ]);
 
 export { lessonDb };
