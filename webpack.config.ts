@@ -1,7 +1,11 @@
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const path = require('path');
+const env = require('./env.ts');
+
+const {webpack: {mode, devtool, output: {publicPath}}} = env;
 
 module.exports = {
+  mode,
   entry: './src/index.tsx',
   module: {
     rules: [
@@ -30,14 +34,13 @@ module.exports = {
   },
   output: {
     filename: 'bundle.js',
-    publicPath: '/',
+    publicPath,
     path: path.resolve(__dirname, 'build'),
   },
   devServer: {
     contentBase: path.join(__dirname, 'build'),
-    historyApiFallback: true,
   },
-  devtool: 'source-map',
+  devtool,
   plugins: [
     new HtmlWebpackPlugin({
       template: 'src/index.html',

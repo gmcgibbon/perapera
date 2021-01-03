@@ -76,7 +76,7 @@ class ActivityComponent extends Component<Props, State> {
   }
 
   private finishActivity() {
-    document.location.href = "/";
+    document.location.href = "#/";
   }
 
   private nextTask(correct: boolean) {

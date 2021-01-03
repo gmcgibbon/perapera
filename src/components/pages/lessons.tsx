@@ -26,7 +26,7 @@ function LessonsPage(props: Props): JSX.Element {
         {lessons.map<JSX.Element>(({id, title}) => {
             const Icon = icons[id] || New;
             return (
-              <Anchor key={id} href={`/lessons/${id}`}>
+              <Anchor key={id} href={`#/lessons/${id}`}>
                 <Heading level="2"><Icon size="medium" />{title}</Heading>
               </Anchor>  
             );
