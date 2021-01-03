@@ -1,4 +1,5 @@
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const {CleanWebpackPlugin} = require('clean-webpack-plugin');
 const path = require('path');
 const env = require('./env.ts');
 
@@ -42,6 +43,10 @@ module.exports = {
   },
   devtool,
   plugins: [
+    new CleanWebpackPlugin({
+      dry: env.isDevelopment,
+      cleanOnceBeforeBuildPatterns: ['**/*.js'],
+    }),
     new HtmlWebpackPlugin({
       template: 'src/index.html',
       filename: 'index.html',

@@ -11,5 +11,6 @@ const webpack = {
 
 module.exports = {
   environment,
+  isDevelopment,
   webpack,
 };
